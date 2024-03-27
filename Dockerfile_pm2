@@ -1,0 +1,37 @@
+# Import nodejs base os with version
+FROM node:18-alpine
+
+# Maintainer
+MAINTAINER support@groots.in
+
+# Create app directory
+RUN mkdir -p /app
+WORKDIR /app
+
+# Copy app directory files and directory in container
+COPY package*.json /app
+
+# Upgrade npm modules
+RUN npm install -g npm@latest \
+    npm install -g pm2
+
+# Install app modules
+RUN npm install
+
+# Clean npm cache
+RUN npm cache clean --force
+
+#COPY code in container
+COPY . /app
+
+# Verify app directory in container
+RUN ls -a /app
+
+# Set env for input variables
+#ENV IPADDRESS=0.0.0.0
+
+# Expose port
+EXPOSE 3001 3002 3004
+
+# Start Node.js application(s) using PM2-runtime with --max-old-space-size
+CMD ["pm2-runtime", "ecosystem.config.js"]
